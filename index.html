@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CircuitLab — 아두이노 회로 학습 플랫폼</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent:  #0284c7;
+      --accent2: #10b981;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --bg:      #f8fafc;
+      --panel:   #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(248,250,252,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px; font-weight: 700; letter-spacing: 2px;
+      text-decoration: none; color: var(--text);
+    }
+    .nav-logo .c1 { color: var(--accent); }
+    .nav-logo .c2 { color: var(--accent2); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 14px; font-weight: 400; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── SECTIONS ── */
+    section { padding: 100px 40px; max-width: 1100px; margin: 0 auto; }
+    section:first-of-type { padding-top: 160px; }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding-top: 160px !important;
+      padding-bottom: 80px !important;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 4px;
+      color: var(--accent); text-transform: uppercase;
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      padding: 6px 16px; border-radius: 50px;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(48px, 7vw, 80px);
+      font-weight: 700; letter-spacing: 4px;
+      line-height: 1.1; margin-bottom: 12px;
+    }
+    .hero h1 .c1 { color: var(--accent); }
+    .hero h1 .c2 { color: var(--accent2); }
+    .hero-sub {
+      font-size: 20px; color: var(--muted); font-weight: 300;
+      margin-bottom: 20px;
+    }
+    .hero-desc {
+      font-size: 16px; color: var(--muted);
+      max-width: 560px; margin: 0 auto 48px;
+      line-height: 1.8;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 0;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 48px;
+      width: fit-content; margin: 0 auto 60px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .stat { text-align: center; padding: 0 40px; }
+    .stat + .stat { border-left: 1px solid var(--border); }
+    .stat-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 32px; font-weight: 700;
+      color: var(--text); line-height: 1; margin-bottom: 6px;
+    }
+    .stat-num .a { color: var(--accent); }
+    .stat-num .b { color: var(--accent2); }
+    .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+
+    .hero-img {
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px var(--border);
+      max-width: 860px; margin: 0 auto;
+    }
+    .hero-img img { width: 100%; display: block; }
+
+    /* ── SECTION HEADER ── */
+    .sec-header { text-align: center; margin-bottom: 56px; }
+    .sec-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 14px;
+    }
+    .sec-header h2 {
+      font-size: 36px; font-weight: 700; margin-bottom: 12px;
+    }
+    .sec-header p { font-size: 16px; color: var(--muted); }
+
+    /* ── FEATURES ── */
+    .features { background: var(--panel); padding: 100px 40px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .features-inner { max-width: 1100px; margin: 0 auto; }
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+    }
+    .feature-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(2,132,199,0.08);
+      transform: translateY(-4px);
+    }
+    .feature-icon { font-size: 36px; margin-bottom: 16px; }
+    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    /* ── SCREENSHOTS ── */
+    .screenshots { max-width: 1100px; margin: 0 auto; padding: 100px 40px; }
+
+    .ss-row {
+      display: grid; gap: 24px; margin-bottom: 24px;
+    }
+    .ss-row.col-2 { grid-template-columns: 1fr 1fr; }
+    .ss-row.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .ss-row.col-1 { grid-template-columns: 1fr; }
+
+    .ss-card {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      background: var(--panel);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .ss-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+    }
+    .ss-card img { width: 100%; display: block; }
+    .ss-caption {
+      padding: 14px 16px;
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      border-top: 1px solid var(--border);
+      font-family: 'Space Mono', monospace;
+    }
+    .ss-caption .dot {
+      display: inline-block; width: 8px; height: 8px;
+      border-radius: 50%; margin-right: 8px;
+    }
+    .dot-blue { background: var(--accent); }
+    .dot-green { background: var(--accent2); }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+
+    /* ── MISSIONS ── */
+    .missions-bg { background: var(--panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .missions { max-width: 1100px; margin: 0 auto; padding: 100px 40px; }
+    .mission-list {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .mission-item {
+      display: flex; align-items: flex-start; gap: 16px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 24px;
+      transition: all 0.2s;
+    }
+    .mission-item:hover { border-color: var(--accent); background: #eff6ff; }
+    .mission-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      min-width: 36px; line-height: 1;
+    }
+    .mission-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .mission-text p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── GRADING ── */
+    .grading { max-width: 1100px; margin: 0 auto; padding: 100px 40px; }
+
+    /* ── TECH STACK ── */
+    .tech-bg { background: var(--panel); border-top: 1px solid var(--border); }
+    .tech { max-width: 1100px; margin: 0 auto; padding: 100px 40px; }
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    }
+    .tech-card {
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px; text-align: center; background: var(--bg);
+    }
+    .tech-icon { font-size: 32px; margin-bottom: 10px; }
+    .tech-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; font-family: 'Space Mono', monospace; }
+    .tech-card p { font-size: 12px; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 40px;
+      font-size: 13px; color: var(--muted);
+    }
+    footer .logo-foot {
+      font-family: 'Space Mono', monospace;
+      font-size: 16px; font-weight: 700; margin-bottom: 8px;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 1100px; margin: 0 auto;
+      height: 1px; background: var(--border);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 60px 20px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .ss-row.col-2, .ss-row.col-3 { grid-template-columns: 1fr; }
+      .mission-list { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { padding: 24px; flex-direction: column; gap: 20px; }
+      .stat + .stat { border-left: none; border-top: 1px solid var(--border); padding-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><span class="c1">Circuit</span><span class="c2">Lab</span></a>
+  <div class="nav-links">
+    <a href="#features">특징</a>
+    <a href="#screenshots">화면 소개</a>
+    <a href="#missions">미션</a>
+    <a href="#grading">AI 채점</a>
+    <a href="#tech">기술 스택</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-badge">⚡ Arduino Learning Platform</div>
+  <h1><span class="c1">Circuit</span><span class="c2">Lab</span></h1>
+  <p class="hero-sub">아두이노 회로 학습 플랫폼</p>
+  <p class="hero-desc">
+    소스 코드를 분석하고, 브라우저에서 직접 회로를 설계하세요.<br>
+    AI가 실시간으로 채점하고 구체적인 피드백을 제공합니다.
+  </p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num"><span class="a">10</span></div>
+      <div class="stat-label">미션</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="b">9</span>+</div>
+      <div class="stat-label">부품 종류</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="a">AI</span></div>
+      <div class="stat-label">GPT 채점</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="b">EXE</span></div>
+      <div class="stat-label">데스크톱 앱</div>
+    </div>
+  </div>
+  <div class="hero-img">
+    <img src="Circuit01.png" alt="CircuitLab 메인 화면" />
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="features" id="features">
+  <div class="features-inner">
+    <div class="sec-header">
+      <div class="sec-tag">Features</div>
+      <h2>주요 기능</h2>
+      <p>실제 아두이노 환경을 브라우저에서 그대로 재현했습니다.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h3>인터랙티브 회로 에디터</h3>
+        <p>브레드보드와 아두이노를 Canvas로 완벽 구현. 점퍼선을 클릭으로 연결하고, 부품을 드래그로 배치합니다. 줌·팬도 자유롭게.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI GPT 채점 시스템</h3>
+        <p>제출 즉시 GPT가 회로 연결을 분석하고, 어떤 핀이 잘못 연결되었는지 구체적인 피드백을 한국어로 제공합니다.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <h3>9종 부품 완벽 지원</h3>
+        <p>저항, LED, 부저, 푸시버튼, 초음파센서, 서보모터, 가변저항, 조도센서, 슬라이드스위치까지 실물과 동일하게 구현.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>소스코드 제시 방식</h3>
+        <p>실제 아두이노 코드를 보여주고, 그 코드에 맞는 하드웨어 회로를 학습자가 직접 설계하는 역방향 학습 방식.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>4색 점퍼선</h3>
+        <p>빨강·파랑·초록·노랑 4가지 색상의 점퍼선 지원. 우클릭으로 핀의 모든 연결을 한번에 삭제, Delete 키로 선택 삭제.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💻</div>
+        <h3>Electron 데스크톱 앱</h3>
+        <p>설치형 exe 하나로 인터넷 없이도 실행. 내부 Express 서버를 자동으로 구동하여 완전한 오프라인 환경 지원.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREENSHOTS -->
+<div class="screenshots" id="screenshots">
+  <div class="sec-header">
+    <div class="sec-tag">Screenshots</div>
+    <h2>화면 소개</h2>
+    <p>미션 선택부터 회로 설계, AI 채점까지 한눈에 확인하세요.</p>
+  </div>
+
+  <!-- 미션 선택 -->
+  <div class="ss-row col-1" style="max-width:780px; margin: 0 auto 24px;">
+    <div class="ss-card">
+      <img src="Circuit02.png" alt="미션 선택 화면" />
+      <div class="ss-caption"><span class="dot dot-blue"></span>미션 선택 — 10개의 난이도별 회로 미션</div>
+    </div>
+  </div>
+
+  <!-- 회로 에디터 -->
+  <div class="ss-row col-2">
+    <div class="ss-card">
+      <img src="Circuit03.png" alt="회로 에디터 - 소스코드 확인" />
+      <div class="ss-caption"><span class="dot dot-blue"></span>소스 코드 확인 & 회로 에디터</div>
+    </div>
+    <div class="ss-card">
+      <img src="Circuit04.png" alt="부품 드래그" />
+      <div class="ss-caption"><span class="dot dot-yellow"></span>부품 드래그 — 스냅 미리보기 하이라이트</div>
+    </div>
+  </div>
+
+  <div class="ss-row col-2" style="margin-top:24px;">
+    <div class="ss-card">
+      <img src="Circuit05.png" alt="와이어 연결" />
+      <div class="ss-caption"><span class="dot dot-blue"></span>점퍼선 연결 — 핀 클릭으로 회로 배선</div>
+    </div>
+    <div class="ss-card">
+      <img src="Circuit12.png" alt="슬라이드 스위치 미션" />
+      <div class="ss-caption"><span class="dot dot-green"></span>슬라이드 스위치로 LED 켜고 끄기</div>
+    </div>
+  </div>
+
+  <div class="ss-row col-3" style="margin-top:24px;">
+    <div class="ss-card">
+      <img src="Circuit08.png" alt="서보모터 미션" />
+      <div class="ss-caption"><span class="dot dot-blue"></span>가변저항 → 서보모터 각도 조절</div>
+    </div>
+    <div class="ss-card">
+      <img src="Circuit10.png" alt="초음파 센서 미션" />
+      <div class="ss-caption"><span class="dot dot-green"></span>초음파 센서 + 부저 후방 감지기</div>
+    </div>
+    <div class="ss-card">
+      <img src="Circuit11.png" alt="조도 센서 미션" />
+      <div class="ss-caption"><span class="dot dot-yellow"></span>조도 센서 → 어두우면 가로등 켜기</div>
+    </div>
+  </div>
+</div>
+
+<!-- GRADING -->
+<div style="background: var(--panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="grading" id="grading">
+    <div class="sec-header">
+      <div class="sec-tag">AI Grading</div>
+      <h2>GPT 실시간 채점</h2>
+      <p>제출하면 GPT가 회로를 분석해 오답 원인을 구체적으로 알려줍니다.</p>
+    </div>
+    <div class="ss-row col-2" style="max-width: 860px; margin: 0 auto;">
+      <div class="ss-card">
+        <img src="Circuit06.png" alt="오답 피드백" />
+        <div class="ss-caption"><span class="dot dot-red"></span>오답 — 잘못된 연결 핀을 정확히 짚어줌</div>
+      </div>
+      <div class="ss-card">
+        <img src="Circuit07.png" alt="정답 피드백" />
+        <div class="ss-caption"><span class="dot dot-green"></span>정답 — 회로 원리까지 설명하는 피드백</div>
+      </div>
+    </div>
+    <div class="ss-row col-2" style="max-width: 860px; margin: 24px auto 0;">
+      <div class="ss-card">
+        <img src="Circuit09.png" alt="서보모터 정답" />
+        <div class="ss-caption"><span class="dot dot-green"></span>가변저항-서보모터 회로 정답 피드백</div>
+      </div>
+      <div class="ss-card">
+        <img src="Circuit14.png" alt="버튼 2개 오답" />
+        <div class="ss-caption"><span class="dot dot-red"></span>버튼 2개 LED 2개 회로 오답 피드백</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MISSIONS -->
+<div class="missions-bg">
+  <div class="missions" id="missions">
+    <div class="sec-header">
+      <div class="sec-tag">Missions</div>
+      <h2>10가지 미션</h2>
+      <p>기초부터 복합 회로까지, 단계별로 아두이노 하드웨어를 익힙니다.</p>
+    </div>
+    <div class="mission-list">
+      <div class="mission-item">
+        <div class="mission-num">1</div>
+        <div class="mission-text">
+          <h4>LED 켜기 (5V)</h4>
+          <p>저항과 LED를 5V 전원에 직접 연결하는 가장 기본적인 회로</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">2</div>
+        <div class="mission-text">
+          <h4>LED 3개 켜기</h4>
+          <p>디지털 핀 D2, D3, D4에 LED 3개를 독립적으로 연결</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">3</div>
+        <div class="mission-text">
+          <h4>푸시버튼으로 LED 켜기</h4>
+          <p>버튼 입력을 읽어 LED 출력을 제어하는 디지털 I/O 회로</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">4</div>
+        <div class="mission-text">
+          <h4>버튼 2개로 LED 2개 독립 제어</h4>
+          <p>2개의 버튼으로 각각 다른 LED를 독립적으로 On/Off</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">5</div>
+        <div class="mission-text">
+          <h4>초음파 센서로 거리에 따라 LED 켜기</h4>
+          <p>HC-SR04로 거리를 측정하여 임계값 이하일 때 LED 점등</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">6</div>
+        <div class="mission-text">
+          <h4>버튼 2개로 서보모터 방향 제어</h4>
+          <p>버튼 입력에 따라 서보모터를 0° 또는 180°로 회전</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">7</div>
+        <div class="mission-text">
+          <h4>가변저항으로 서보모터 각도 조절</h4>
+          <p>아날로그 입력값을 map() 함수로 변환해 서보 각도 제어</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">8</div>
+        <div class="mission-text">
+          <h4>슬라이드 스위치로 LED 켜고 끄기</h4>
+          <p>슬라이드 스위치의 COM·ON1·ON2 단자를 이용한 회로</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">9</div>
+        <div class="mission-text">
+          <h4>조도 센서로 어두워지면 켜지는 가로등</h4>
+          <p>CdS 조도 센서의 아날로그 값으로 밝기를 판단해 LED 제어</p>
+        </div>
+      </div>
+      <div class="mission-item">
+        <div class="mission-num">10</div>
+        <div class="mission-text">
+          <h4>초음파 센서와 부저를 이용한 후방 감지기</h4>
+          <p>거리에 따라 부저 톤을 달리하는 주차 보조 시스템 회로</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<div class="tech-bg" id="tech">
+  <div class="tech">
+    <div class="sec-header">
+      <div class="sec-tag">Tech Stack</div>
+      <h2>기술 스택</h2>
+      <p>외부 라이브러리 의존 없이, 순수 Canvas API로 회로를 구현했습니다.</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-icon">🖼️</div>
+        <h4>Canvas API</h4>
+        <p>회로 렌더링 전체를 순수 Canvas로 구현</p>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">⚡</div>
+        <h4>Node.js + Express</h4>
+        <p>로컬 서버 및 API 라우팅</p>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🤖</div>
+        <h4>OpenAI GPT API</h4>
+        <p>회로 분석 및 한국어 피드백 생성</p>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">📦</div>
+        <h4>Electron</h4>
+        <p>Windows 설치형 exe 패키징</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo-foot"><span style="color:var(--accent)">Circuit</span><span style="color:var(--accent2)">Lab</span></div>
+  <p>아두이노 회로 학습 플랫폼 &nbsp;·&nbsp; 2026</p>
+</footer>
+
+</body>
+</html>
