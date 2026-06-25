@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CircuitLab — 발표 자료</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent:  #0284c7;
+      --accent2: #10b981;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --bg:      #f8fafc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100vw; height: 100vh; overflow: hidden; }
+    body { font-family: 'Noto Sans KR', sans-serif; }
+
+    /* ── SLIDE SYSTEM ── */
+    #slides { position: relative; width: 100%; height: 100%; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+      overflow: hidden;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .slide.dark  { background: #0f172a; }
+    .slide.light { background: var(--bg); }
+
+    /* ── PROGRESS BAR ── */
+    #progress {
+      position: fixed; top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.4s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* ── SLIDE COUNTER ── */
+    #counter {
+      position: fixed; top: 14px; right: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 2px;
+      z-index: 1000;
+      transition: color 0.3s;
+    }
+
+    /* ── BOTTOM NAV ── */
+    #nav-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    #nav-footer > * { pointer-events: auto; }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .dot.active { width: 22px; border-radius: 4px; }
+
+    /* ── ARROWS ── */
+    .arr {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      z-index: 1000;
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid; font-size: 20px; font-weight: 300;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; backdrop-filter: blur(8px);
+      line-height: 1;
+    }
+    .arr:disabled { opacity: 0.15; cursor: default; }
+    #prev { left: 16px; }
+    #next { right: 16px; }
+
+    /* nav colour: dark slides */
+    body.on-dark #counter        { color: rgba(255,255,255,0.35); }
+    body.on-dark .dot            { background: rgba(255,255,255,0.2); }
+    body.on-dark .dot.active     { background: var(--accent2); }
+    body.on-dark .arr            { color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); }
+    body.on-dark .arr:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,0.14); }
+
+    /* nav colour: light slides */
+    body.on-light #counter       { color: rgba(0,0,0,0.25); }
+    body.on-light .dot           { background: rgba(0,0,0,0.15); }
+    body.on-light .dot.active    { background: var(--accent); }
+    body.on-light .arr           { color: rgba(0,0,0,0.35); border-color: rgba(0,0,0,0.1); background: rgba(0,0,0,0.04); }
+    body.on-light .arr:hover:not(:disabled) { color: var(--text); background: rgba(0,0,0,0.08); }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 1 — TITLE
+    ═══════════════════════════════════════════ */
+    .s1-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); margin-bottom: 24px;
+    }
+    .logo-big {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(56px, 9vw, 100px);
+      font-weight: 700; letter-spacing: 6px; line-height: 1;
+      margin-bottom: 14px;
+    }
+    .logo-big .c1 { color: var(--accent); }
+    .logo-big .c2 { color: var(--accent2); }
+    .s1-sub {
+      font-size: 17px; color: rgba(255,255,255,0.4);
+      font-weight: 300; letter-spacing: 2px; margin-bottom: 56px;
+    }
+    .s1-stats {
+      display: flex; gap: 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px; padding: 28px 0;
+      background: rgba(255,255,255,0.03);
+    }
+    .s1-stat { padding: 0 44px; text-align: center; }
+    .s1-stat + .s1-stat { border-left: 1px solid rgba(255,255,255,0.07); }
+    .s1-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 26px; font-weight: 700; color: #fff;
+      margin-bottom: 7px; line-height: 1;
+    }
+    .s1-num .a { color: var(--accent); }
+    .s1-num .b { color: var(--accent2); }
+    .s1-lbl { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 2px; }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 2 — 교육과정
+    ═══════════════════════════════════════════ */
+    .two-col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 72px; width: 100%; max-width: 980px; align-items: center;
+    }
+    .slide-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 16px;
+    }
+    .slide-tag.blue { color: var(--accent); }
+    .slide-h2 {
+      font-size: clamp(22px, 2.8vw, 34px); font-weight: 900;
+      color: var(--text); line-height: 1.4; margin-bottom: 18px;
+    }
+    .slide-h2 em { color: var(--accent); font-style: normal; }
+    .slide-h2-w {
+      font-size: clamp(22px, 2.8vw, 34px); font-weight: 900;
+      color: #fff; line-height: 1.4; margin-bottom: 18px;
+    }
+    .slide-h2-w em { color: var(--accent2); font-style: normal; }
+    .slide-p { font-size: 14px; color: var(--muted); line-height: 1.9; }
+    .flow-cards { display: flex; flex-direction: column; gap: 14px; }
+    .flow-card {
+      display: flex; align-items: center; gap: 18px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px 22px;
+    }
+    .flow-card.highlight { border-color: var(--accent2); background: #f0fdf4; }
+    .flow-n {
+      font-family: 'Space Mono', monospace;
+      font-size: 32px; font-weight: 700; min-width: 52px; text-align: center;
+    }
+    .flow-n.old { color: var(--muted); text-decoration: line-through; font-size: 26px; }
+    .flow-n.new { color: var(--accent2); }
+    .flow-body h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .flow-body p  { font-size: 12px; color: var(--muted); }
+    .flow-arrow { text-align: center; font-size: 20px; color: var(--border); }
+    .info-pill {
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      border-radius: 10px; padding: 14px 18px;
+      font-size: 13px; color: var(--accent); font-weight: 700; text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 3 — 문제점
+    ═══════════════════════════════════════════ */
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px; max-width: 940px; width: 100%;
+    }
+    .problem-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 32px 24px; text-align: center;
+    }
+    .p-icon { font-size: 40px; margin-bottom: 16px; }
+    .problem-card h3 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 10px; line-height: 1.4; }
+    .problem-card p  { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 4 — 솔루션
+    ═══════════════════════════════════════════ */
+    .solution-wrap { max-width: 740px; width: 100%; text-align: center; }
+    .sol-h2 {
+      font-size: clamp(22px, 2.8vw, 34px); font-weight: 900;
+      color: var(--text); line-height: 1.5; margin-bottom: 32px;
+    }
+    .sol-h2 em { color: var(--accent); font-style: normal; }
+    .quote-box {
+      background: #fff; border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px; padding: 24px 30px;
+      font-size: 15px; color: var(--text); line-height: 1.8;
+      text-align: left; margin-bottom: 32px;
+    }
+    .quote-box strong { color: var(--accent); }
+    .pills { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .pill {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 50px; padding: 10px 22px;
+      font-size: 13px; font-weight: 700; color: var(--text);
+    }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 5 — 설치
+    ═══════════════════════════════════════════ */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 44px 1fr;
+      gap: 0; max-width: 820px; width: 100%; align-items: center;
+    }
+    .cmp-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 30px 26px;
+    }
+    .cmp-card.good { border-color: rgba(16,185,129,0.35); }
+    .cmp-lbl {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .cmp-lbl.bad  { color: #f87171; }
+    .cmp-lbl.good { color: var(--accent2); }
+    .cmp-card h3 { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+    .cmp-card ul { list-style: none; }
+    .cmp-card ul li {
+      font-size: 13px; color: rgba(255,255,255,0.45);
+      padding: 5px 0; display: flex; align-items: center; gap: 8px;
+    }
+    .cmp-card ul li::before { content: '·'; color: rgba(255,255,255,0.2); }
+    .cmp-card.good ul li { color: rgba(255,255,255,0.75); }
+    .cmp-card.good ul li::before { content: '✓'; color: var(--accent2); }
+    .vs-label {
+      text-align: center; font-family: 'Space Mono', monospace;
+      font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.15);
+    }
+
+    /* ═══════════════════════════════════════════
+       SHARED — screenshot slides
+    ═══════════════════════════════════════════ */
+    .ss-wrap { max-width: 900px; width: 100%; }
+    .ss-header { text-align: center; margin-bottom: 22px; }
+    .ss-header h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .ss-header p  { font-size: 13px; color: var(--muted); }
+    .ss-header-w h2 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .ss-header-w p  { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+    .img-frame {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.09);
+    }
+    .img-frame img { width: 100%; display: block; }
+    .img-frame-d {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    }
+    .img-frame-d img { width: 100%; display: block; }
+
+    .two-img { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .three-img { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+    .img-caption {
+      padding: 9px 14px; font-family: 'Space Mono', monospace;
+      font-size: 10px; color: var(--muted); border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .img-caption-d {
+      padding: 9px 14px; font-family: 'Space Mono', monospace;
+      font-size: 10px; color: rgba(255,255,255,0.35); border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .cdot {
+      display: inline-block; width: 7px; height: 7px;
+      border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 9/10 — AI 채점
+    ═══════════════════════════════════════════ */
+    .grade-wrap {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 56px; max-width: 940px; width: 100%; align-items: center;
+    }
+    .grade-icon { font-size: 52px; margin-bottom: 14px; }
+    .badge {
+      display: inline-block; padding: 5px 16px;
+      border-radius: 50px; font-family: 'Space Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 2px; margin-bottom: 16px;
+    }
+    .badge.red   { background: #fff1f2; color: #ef4444; border: 1px solid #fecaca; }
+    .badge.green { background: #f0fdf4; color: var(--accent2); border: 1px solid #bbf7d0; }
+    .grade-h2 {
+      font-size: clamp(20px, 2.4vw, 28px); font-weight: 900;
+      color: var(--text); margin-bottom: 14px; line-height: 1.4;
+    }
+    .grade-p { font-size: 14px; color: var(--muted); line-height: 1.85; }
+
+    /* ═══════════════════════════════════════════
+       SLIDE 11 — 마무리
+    ═══════════════════════════════════════════ */
+    .fin-pills { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 44px; }
+    .fin-pill {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px; padding: 9px 22px;
+      font-size: 13px; color: rgba(255,255,255,0.65);
+    }
+    .dl-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; text-decoration: none;
+      font-family: 'Space Mono', monospace; font-weight: 700;
+      font-size: 13px; letter-spacing: 1px;
+      padding: 16px 40px; border-radius: 50px;
+      box-shadow: 0 0 40px rgba(2,132,199,0.35);
+      transition: all 0.3s;
+    }
+    .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(16,185,129,0.45); }
+    .dl-sub { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 14px; font-family: 'Space Mono', monospace; }
+  </style>
+</head>
+<body class="on-dark">
+
+<!-- PROGRESS -->
+<div id="progress" style="width:9.09%"></div>
+
+<!-- COUNTER -->
+<div id="counter">1 / 11</div>
+
+<!-- ARROWS -->
+<button id="prev" class="arr" disabled>‹</button>
+<button id="next" class="arr">›</button>
+
+<!-- DOTS -->
+<div id="nav-footer"></div>
+
+<!-- ═══════ SLIDES ═══════ -->
+<div id="slides">
+
+  <!-- 1. TITLE -->
+  <section class="slide dark active">
+    <div class="s1-badge">⚡ Arduino Learning Platform</div>
+    <div class="logo-big"><span class="c1">Circuit</span><span class="c2">Lab</span></div>
+    <p class="s1-sub">아두이노 회로 학습 플랫폼</p>
+    <div class="s1-stats">
+      <div class="s1-stat">
+        <div class="s1-num"><span class="b">10</span></div>
+        <div class="s1-lbl">MISSIONS</div>
+      </div>
+      <div class="s1-stat">
+        <div class="s1-num"><span class="a">9</span></div>
+        <div class="s1-lbl">COMPONENTS</div>
+      </div>
+      <div class="s1-stat">
+        <div class="s1-num" style="font-size:20px;"><span class="b">GPT</span></div>
+        <div class="s1-lbl">AI GRADING</div>
+      </div>
+      <div class="s1-stat">
+        <div class="s1-num" style="font-size:18px;"><span class="a">.EXE</span></div>
+        <div class="s1-lbl">ONE-CLICK</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 교육과정 배경 -->
+  <section class="slide light">
+    <div class="two-col">
+      <div>
+        <div class="slide-tag">WHY CIRCUITLAB?</div>
+        <div class="slide-h2">2022 개정 교육과정,<br>컴퓨팅 시스템이<br><em>1단원</em>이 된 이유</div>
+        <p class="slide-p">
+          피지컬 컴퓨팅, 즉 아두이노와 같은 하드웨어 제어 교육이 이제는 선택이 아닌
+          <strong>필수</strong>가 되었습니다.<br><br>
+          그러나 회로 연결은 학생들이 가장 어려워하는 부분입니다.
+          선생님도 30명을 혼자 봐주기에 시간이 부족합니다.
+        </p>
+      </div>
+      <div class="flow-cards">
+        <div class="flow-card">
+          <div class="flow-n old">4</div>
+          <div class="flow-body">
+            <h4>2015 개정 교육과정</h4>
+            <p>컴퓨팅 시스템 — 4단원</p>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-card highlight">
+          <div class="flow-n new">1</div>
+          <div class="flow-body">
+            <h4>2022 개정 교육과정</h4>
+            <p>컴퓨팅 시스템 — <strong style="color:var(--accent2)">1단원으로 격상</strong></p>
+          </div>
+        </div>
+        <div class="info-pill">그만큼 현시대에서의 중요성이 부각되었습니다 📌</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 문제점 -->
+  <section class="slide dark">
+    <div class="slide-tag" style="color:rgba(255,255,255,0.3); margin-bottom:12px;">PROBLEM</div>
+    <div class="slide-h2-w" style="text-align:center; margin-bottom:40px;">아두이노 교실에서 무슨 일이 벌어질까요?</div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="p-icon">😕</div>
+        <h3>학생이 왜 틀렸는지<br>스스로 모릅니다</h3>
+        <p>회로 하나만 잘못 연결해도 전체가 작동하지 않는데, 어디가 문제인지 파악하기 어렵습니다.</p>
+      </div>
+      <div class="problem-card">
+        <div class="p-icon">👨‍🏫</div>
+        <h3>선생님이 30명을<br>다 봐줄 수 없습니다</h3>
+        <p>한 명 한 명 회로를 확인해 주기에는 수업 시간이 턱없이 부족합니다.</p>
+      </div>
+      <div class="problem-card">
+        <div class="p-icon">💸</div>
+        <h3>실물 부품의 한계</h3>
+        <p>재료 구입 비용, 잘못 연결하면 부품이 파손될 위험. 자유로운 반복 실습이 어렵습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 솔루션 -->
+  <section class="slide light">
+    <div class="solution-wrap">
+      <div class="slide-tag" style="text-align:center;">SOLUTION</div>
+      <div class="sol-h2">소스 코드를 보고 회로를 직접 설계하면,<br><em>AI가 즉시 무엇이 틀렸는지 콕 집어 알려줍니다.</em></div>
+      <div class="quote-box">
+        <strong>"여기 이 핀이 잘못 연결됐어요. 이 선을 GND에 연결해보세요."</strong><br>
+        <span style="font-size:12px; color:var(--muted);">— CircuitLab AI 피드백 예시</span>
+      </div>
+      <div class="pills">
+        <div class="pill">🎓 학생은 빠르게 성장하고</div>
+        <div class="pill">⏰ 선생님은 시간을 얻고</div>
+        <div class="pill">✨ 수업은 더 풍요로워집니다</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 설치 편의성 -->
+  <section class="slide dark">
+    <div class="slide-tag" style="color:rgba(255,255,255,0.3); margin-bottom:14px;">INSTALLATION</div>
+    <div class="slide-h2-w" style="text-align:center; margin-bottom:40px;">크롬 로그인? 회원가입?<br><em>전혀 필요 없습니다.</em></div>
+    <div class="compare-grid">
+      <div class="cmp-card">
+        <div class="cmp-lbl bad">BEFORE — 기존 도구</div>
+        <h3>Tinkercad 등</h3>
+        <ul>
+          <li>구글 로그인 필요</li>
+          <li>브라우저 환경 설정</li>
+          <li>인터넷 연결 필수</li>
+          <li>수업 전 준비 시간 소요</li>
+        </ul>
+      </div>
+      <div class="vs-label">VS</div>
+      <div class="cmp-card good">
+        <div class="cmp-lbl good">AFTER — CircuitLab</div>
+        <h3>exe 파일 하나로 끝!</h3>
+        <ul>
+          <li>로그인 불필요</li>
+          <li>설치 후 바탕화면 아이콘 클릭</li>
+          <li>오프라인 동작</li>
+          <li>단 한 번 설치로 언제든지</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. 미션 목차 -->
+  <section class="slide light">
+    <div class="ss-wrap" style="max-width:720px;">
+      <div class="ss-header">
+        <div class="slide-tag" style="text-align:center;">SCREENSHOTS</div>
+        <h2>10가지 다양한 미션</h2>
+        <p>LED, 버튼, 초음파 센서, 서보모터, 조도 센서까지 — 체계적으로 난이도가 올라갑니다</p>
+      </div>
+      <div class="img-frame">
+        <img src="Circuit02.png" alt="미션 목차" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 회로 에디터 -->
+  <section class="slide light">
+    <div class="ss-wrap">
+      <div class="ss-header">
+        <div class="slide-tag blue" style="text-align:center;">CIRCUIT EDITOR</div>
+        <h2>소스 코드 분석 → 회로 직접 설계</h2>
+        <p>왼쪽 코드를 읽고 오른쪽 캔버스에서 부품을 드래그하고 점퍼선을 연결합니다</p>
+      </div>
+      <div class="two-img">
+        <div class="img-frame">
+          <img src="Circuit03.png" alt="코드 분석" />
+          <div class="img-caption"><span class="cdot" style="background:var(--accent)"></span>미션 설명 + 소스 코드 확인</div>
+        </div>
+        <div class="img-frame">
+          <img src="Circuit04.png" alt="부품 드래그" />
+          <div class="img-caption"><span class="cdot" style="background:#f59e0b"></span>부품 드래그로 위치 자유 변경</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. 다양한 미션 스크린샷 -->
+  <section class="slide dark">
+    <div class="slide-tag" style="color:rgba(255,255,255,0.3); margin-bottom:14px; text-align:center;">MISSION EXAMPLES</div>
+    <div class="slide-h2-w" style="text-align:center; margin-bottom:28px;">
+      초음파 센서, 서보모터, 조도 센서...
+    </div>
+    <div class="three-img" style="max-width:940px; width:100%;">
+      <div class="img-frame-d">
+        <img src="Circuit08.png" alt="가변저항+서보모터" />
+        <div class="img-caption-d">가변저항 + 서보모터</div>
+      </div>
+      <div class="img-frame-d">
+        <img src="Circuit10.png" alt="초음파+부저" />
+        <div class="img-caption-d">초음파 센서 + 부저</div>
+      </div>
+      <div class="img-frame-d">
+        <img src="Circuit11.png" alt="조도센서+LED" />
+        <div class="img-caption-d">조도 센서 + LED</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. AI 채점 — 오답 -->
+  <section class="slide light">
+    <div class="grade-wrap">
+      <div>
+        <div class="grade-icon">🤔</div>
+        <div class="badge red">WRONG ANSWER</div>
+        <div class="grade-h2">무엇이 왜 틀렸는지<br>AI가 콕 집어 알려줍니다</div>
+        <p class="grade-p">
+          단순히 "오답"이 아닙니다.<br>
+          어느 핀이 잘못 연결됐는지, 무엇을 고쳐야 하는지<br>
+          구체적인 안내를 제공합니다.<br><br>
+          초보자도 혼자서 실력을 키울 수 있습니다.
+        </p>
+      </div>
+      <div class="img-frame">
+        <img src="Circuit06.png" alt="오답 피드백" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. AI 채점 — 정답 -->
+  <section class="slide light">
+    <div class="grade-wrap">
+      <div class="img-frame">
+        <img src="Circuit07.png" alt="정답 피드백" />
+      </div>
+      <div>
+        <div class="grade-icon">🎉</div>
+        <div class="badge green">CORRECT!</div>
+        <div class="grade-h2">정답! 회로 동작 원리까지<br>상세히 설명해줍니다</div>
+        <p class="grade-p">
+          정답일 때도 AI는 단순히 "통과"가 아닙니다.<br>
+          전류가 어떻게 흐르는지, 왜 이 연결이 맞는지<br>
+          원리까지 설명해 줍니다.<br><br>
+          학습 효과가 2배로 높아집니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. 마무리 -->
+  <section class="slide dark" style="gap:0;">
+    <div class="logo-big" style="margin-bottom:10px;"><span class="c1">Circuit</span><span class="c2">Lab</span></div>
+    <p style="font-size:16px; color:rgba(255,255,255,0.4); font-weight:300; margin-bottom:36px; text-align:center;">
+      더 풍요로운 Arduino 수업을 만들어 보세요.
+    </p>
+    <div class="fin-pills">
+      <div class="fin-pill">🎓 학생은 성장하고</div>
+      <div class="fin-pill">⏰ 선생님은 시간을 얻고</div>
+      <div class="fin-pill">✨ 수업은 더 풍요로워집니다</div>
+    </div>
+    <a href="https://github.com/shk-cell/Circuit/releases/download/v1.0.0/CircuitLab.Setup.1.0.0.exe"
+       class="dl-btn" target="_blank" rel="noopener noreferrer">
+      ⬇&nbsp; CircuitLab 다운로드 (Windows)
+    </a>
+    <p class="dl-sub">CircuitLab.Setup.1.0.0.exe · Windows 전용</p>
+  </section>
+
+</div><!-- /slides -->
+
+<script>
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const total   = slides.length;
+  let   current = 0;
+
+  const progressEl = document.getElementById('progress');
+  const counterEl  = document.getElementById('counter');
+  const navFooter  = document.getElementById('nav-footer');
+  const btnPrev    = document.getElementById('prev');
+  const btnNext    = document.getElementById('next');
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    navFooter.appendChild(d);
+  });
+
+  function goTo(idx) {
+    if (idx === current || idx < 0 || idx >= total) return;
+    slides[current].classList.remove('active');
+    slides[idx].classList.add('active');
+    current = idx;
+    update();
+  }
+
+  function update() {
+    // progress
+    progressEl.style.width = ((current + 1) / total * 100) + '%';
+    // counter
+    counterEl.textContent = (current + 1) + ' / ' + total;
+    // dots
+    document.querySelectorAll('.dot').forEach((d, i) =>
+      d.classList.toggle('active', i === current));
+    // buttons
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    // nav colour
+    const isDark = slides[current].classList.contains('dark');
+    document.body.className = isDark ? 'on-dark' : 'on-light';
+  }
+
+  btnPrev.addEventListener('click', () => goTo(current - 1));
+  btnNext.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) {
+      e.preventDefault(); goTo(current + 1);
+    } else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {
+      e.preventDefault(); goTo(current - 1);
+    }
+  });
+
+  // Touch swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) dx < 0 ? goTo(current + 1) : goTo(current - 1);
+  }, { passive: true });
+</script>
+</body>
+</html>
